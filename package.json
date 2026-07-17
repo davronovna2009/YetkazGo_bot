@@ -1,0 +1,17 @@
+{
+  "name": "yetkazgo-bot",
+  "version": "1.0.0",
+  "description": "YetkazGo — Telegram buyurtma boti (grammY). Backendga faqat HTTP orqali ulanadi.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/bot.js",
+    "dev": "node --watch src/bot.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "grammy": "^1.30.0"
+  }
+}
