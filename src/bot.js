@@ -3,6 +3,7 @@ import { Bot, session, GrammyError, HttpError } from 'grammy';
 import { BOT_TOKEN, API_BASE, WEBAPP_URL, WEBAPP_READY } from './config.js';
 import { mainMenuKb, CLOSE_LABEL } from './keyboards.js';
 import { startWatcher } from './watcher.js';
+import { startHealthServer } from './health.js';
 
 import { registerStart } from './handlers/start.js';
 import { registerOrder } from './handlers/order.js';
@@ -67,6 +68,9 @@ await bot.api.setMyCommands([
   { command: 'start', description: 'Bosh menyu / qayta boshlash' },
   { command: 'help', description: 'Yordam' },
 ]).catch(() => {});
+
+/* Health/keep-alive serveri (faqat Render'da — PORT bor bo'lganda) */
+startHealthServer();
 
 /* Buyurtma holatini kuzatish (arrived -> "yetib keldi" xabari) */
 startWatcher(bot);

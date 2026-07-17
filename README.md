@@ -137,3 +137,49 @@ yetkaz-FINAL/
 5. `watcher.js` tugallanmagan buyurtmalarni har `POLL_MS` da `GET /orders/:id`
    orqali so'raydi (backendda push kanali yo'q — sayt paneli ham shunday qiladi).
    `arrived` bo'lganda "yetib keldi, tasdiqlang" xabari ketadi.
+
+## Render.com'ga deploy (doimiy ishlashi uchun)
+
+Bot doimiy ishlashi uchun uni Render'ga qo'yamiz. **Avval backend Render'da
+ishlab turgan bo'lishi kerak** — bot uning ochiq manziliga ulanadi.
+
+### 1. Blueprint orqali yaratish
+
+1. render.com → **New + → Blueprint** → `YetkazGo_bot` repozitoriysini tanlang.
+2. Render `render.yaml`ni o'qiydi va `yetkazgo-bot` (web, free) servisini sozlaydi.
+3. **Apply** bosishдан oldin/keyin **Environment** bo'limида quyidagilarni kiriting:
+
+   | Kalit | Qiymat |
+   |-------|--------|
+   | `BOT_TOKEN` | @BotFather bergan token |
+   | `API_BASE` | `https://<backend-nomi>.onrender.com/api` |
+   | `WEBAPP_URL` | `https://<backend-nomi>.onrender.com/tg-app.html` |
+
+   (`POLL_MS` va `NODE_VERSION` allaqachon `render.yaml`da.)
+4. Deploy tugagach loglarда `🤖 @... ishga tushdi (polling)` va
+   `🩺 Health server ...` chiqadi. Bot manzili: `https://yetkazgo-bot.onrender.com`.
+
+### 2. Uxlab qolmasligi uchun (keep-alive) — MUHIM
+
+Bepul Render web service **15 daqiqa harakatsizlikдан keyin uxlaydi** va bot
+to'xtaydi. Uni uyg'oq saqlash uchun tashqi pinger sozlang:
+
+1. **cron-job.org** (bepul) → ro'yxatdan o'ting → **Create cronjob**.
+2. URL: `https://yetkazgo-bot.onrender.com/` — har **10 daqiqада** (`*/10 * * * *`).
+3. Saqlang. Endi bot doim uyg'oq turadi.
+
+(UptimeRobot ham bo'ladi: 5 daqiqалик HTTP monitor.)
+
+### ⚠️ Bitta bot — bitta joyда polling
+
+Telegram bir tokenни **faqat bitta** joyда `getUpdates` qilishга ruxsat beradi.
+Render'да ishga tushirsangiz, **lokal `npm start`ни to'xtating** (aks holда
+`409 Conflict` bo'ladi). Alohida sinov uchun @BotFather'дан ikkinchi token oling.
+
+### Nega "web", "background worker" emas?
+
+Background worker doim ishlaydi va polling uchun ideal, lekin **pullik** (~$7/oy).
+Bepul tarifда faqat web service bor — shuning uchun bot `$PORT`да kichik health
+server ochadi (`src/health.js`) va tashqi pinger bilan uyg'oq turadi. Byudjet
+bo'lsa, Render'да servis turini "Background Worker"ga o'zgartirib, keep-alive
+pingerни o'chirsangiz bo'ladi (u holда `src/health.js` shunchaki ishlamay turadi).

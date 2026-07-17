@@ -1,0 +1,36 @@
+# ===== Render.com blueprint — YetkazGo bot =====
+# Render'да: New + → Blueprint → shu repozitoriyni (YetkazGo_bot) tanlang → Apply.
+#
+# MUHIM: bu "web" turi (background worker EMAS), chunki bepul tarifда faqat web
+# service bor. Bot polling qiladi, lekin Render web service $PORT да HTTP
+# tinglashini talab qiladi — buni src/health.js bajaradi.
+#
+# Bepul web service 15 daqiqa harakatsizlikдан keyin uxlaydi. Uni uyg'oq saqlash
+# uchun tashqi pinger sozlang (cron-job.org / UptimeRobot) — bot manzilini
+# (https://<nom>.onrender.com/) har ~10 daqiqада ochib tursin. Batafsil: README.
+
+services:
+  - type: web
+    name: yetkazgo-bot
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      # @BotFather bergan token — dashboardда kiritiladi (koдда saqlanmaydi)
+      - key: BOT_TOKEN
+        sync: false
+      # Backendning OCHIQ manzili (localhost EMAS). Masalan:
+      #   https://<backend-nomi>.onrender.com/api
+      - key: API_BASE
+        sync: false
+      # Mini sayt manzili — backend uni /tg-app.html да beradi. Masalan:
+      #   https://<backend-nomi>.onrender.com/tg-app.html
+      - key: WEBAPP_URL
+        sync: false
+      # Buyurtma holatini tekshirish oralig'i (ms)
+      - key: POLL_MS
+        value: "10000"
+      - key: NODE_VERSION
+        value: "22"
